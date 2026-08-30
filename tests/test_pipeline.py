@@ -2,14 +2,13 @@
 
 from dataclasses import dataclass
 
-from docpilot.embeddings import Embedder
+from test_retriever import NGramHashEmbedder
+
 from docpilot.generator import Answer, Generator
 from docpilot.loader import Document
 from docpilot.pipeline import RAGPipeline
 from docpilot.retriever import Retriever
 from docpilot.store import SearchHit, VectorStore
-
-from test_retriever import NGramHashEmbedder
 
 
 @dataclass
@@ -48,6 +47,7 @@ def test_pipeline_indexes_and_answers_without_network():
     pipeline.chunker = None
 
     from docpilot.chunker import TokenChunker
+
     pipeline.chunker = TokenChunker(chunk_size=200, overlap=20)
     pipeline.retriever = Retriever(store, embedder, top_k=2)
     generator = _StandInGenerator()

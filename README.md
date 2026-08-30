@@ -1,5 +1,7 @@
 # DocPilot
 
+[![CI](https://github.com/Jeevan-u/docpilot/actions/workflows/ci.yml/badge.svg)](https://github.com/Jeevan-u/docpilot/actions/workflows/ci.yml)
+
 Ask questions in plain English and get answers drawn from **your own documents** — with the exact source passages cited as evidence.
 
 DocPilot is a small, readable implementation of **retrieval-augmented generation (RAG)**. It loads your PDFs, notes and Markdown files, builds a searchable semantic index, then answers questions by retrieving the most relevant passages and grounding a language model on exactly those passages. The whole codebase is a few hundred lines, deliberately dependency-light, and easy to follow module by module.

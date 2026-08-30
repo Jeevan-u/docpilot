@@ -26,21 +26,35 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="docpilot",
         description="Query your documents in plain language using RAG.",
     )
-    subparsers = parser.add_subparsers(dest="command", required=True, metavar="{index,ask,eval}")
+    subparsers = parser.add_subparsers(
+        dest="command", required=True, metavar="{index,ask,eval}"
+    )
 
-    index = subparsers.add_parser("index", help="Load documents and build the search index.")
+    index = subparsers.add_parser(
+        "index", help="Load documents and build the search index."
+    )
     index.add_argument("source", help="A document file or directory to index.")
     index.add_argument("--out", default=None, help="Directory to persist the index in.")
 
     ask = subparsers.add_parser("ask", help="Answer a question from the index.")
     ask.add_argument("question", help="The question to answer.")
-    ask.add_argument("--index", default=None, help="Directory that holds a built index.")
-    ask.add_argument("--top-k", type=int, default=None, help="Override the number of contexts.")
+    ask.add_argument(
+        "--index", default=None, help="Directory that holds a built index."
+    )
+    ask.add_argument(
+        "--top-k", type=int, default=None, help="Override the number of contexts."
+    )
 
-    eval_ = subparsers.add_parser("eval", help="Run a question benchmark against the index.")
+    eval_ = subparsers.add_parser(
+        "eval", help="Run a question benchmark against the index."
+    )
     eval_.add_argument("--questions", required=True, help="JSON file of questions.")
-    eval_.add_argument("--index", default=None, help="Directory that holds a built index.")
-    eval_.add_argument("--top-k", type=int, default=None, help="Retrieval depth for the metric.")
+    eval_.add_argument(
+        "--index", default=None, help="Directory that holds a built index."
+    )
+    eval_.add_argument(
+        "--top-k", type=int, default=None, help="Retrieval depth for the metric."
+    )
     eval_.add_argument(
         "--generate-answers",
         action="store_true",
@@ -64,7 +78,10 @@ def _command_index(args: argparse.Namespace, config: Config) -> int:
 def _command_ask(args: argparse.Namespace, config: Config) -> int:
     index_dir = Path(args.index) if args.index else config.index_dir
     if not _index_exists(index_dir):
-        print(f"Index not found at {index_dir}. Run `python main.py index` first.", file=sys.stderr)
+        print(
+            f"Index not found at {index_dir}. Run `python main.py index` first.",
+            file=sys.stderr,
+        )
         return 1
 
     pipeline = RAGPipeline(config).load(index_dir)
@@ -81,7 +98,10 @@ def _command_ask(args: argparse.Namespace, config: Config) -> int:
 def _command_eval(args: argparse.Namespace, config: Config) -> int:
     index_dir = Path(args.index) if args.index else config.index_dir
     if not _index_exists(index_dir):
-        print(f"Index not found at {index_dir}. Run `python main.py index` first.", file=sys.stderr)
+        print(
+            f"Index not found at {index_dir}. Run `python main.py index` first.",
+            file=sys.stderr,
+        )
         return 1
 
     pipeline = RAGPipeline(config).load(index_dir)

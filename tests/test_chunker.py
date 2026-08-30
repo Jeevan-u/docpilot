@@ -1,5 +1,7 @@
 """Tests for the token-aware chunker."""
 
+import itertools
+
 from docpilot.chunker import TokenChunker
 from docpilot.loader import Document
 
@@ -42,7 +44,7 @@ def test_chunks_are_ordered_and_cover_the_text():
     chunks = chunker.chunk_document(_document())
     merged = " ".join(chunk.text for chunk in chunks)
     assert chunks[0].metadata["chunk_index"] == 0
-    for first, second in zip(chunks, chunks[1:]):
+    for first, second in itertools.pairwise(chunks):
         assert first.metadata["chunk_index"] + 1 == second.metadata["chunk_index"]
         assert second.metadata["chunk_index"] > first.metadata["chunk_index"]
     assert "sun" in merged
@@ -52,7 +54,7 @@ def test_neighbouring_chunks_share_overlap():
     chunker = _chunker(chunk_size=30, overlap=12)
     chunks = chunker.chunk_document(_document())
     assert len(chunks) >= 2
-    for first, second in zip(chunks, chunks[1:]):
+    for first, second in itertools.pairwise(chunks):
         words2 = second.text.split()
         shared_words = 0
         for count in range(min(len(first.text.split()), len(words2)), 0, -1):
@@ -70,7 +72,9 @@ def test_overlap_adds_repetition():
 
 
 def test_single_passage_larger_than_budget_is_hard_split():
-    long_passage = ("The word 'alphabet' comes from the Greek letters alpha and beta. " * 30).strip()
+    long_passage = (
+        "The word 'alphabet' comes from the Greek letters alpha and beta. " * 30
+    ).strip()
     document = Document(text=long_passage, source="long.txt")
     chunker = _chunker(chunk_size=50, overlap=0)
     chunks = chunker.chunk_document(document)
@@ -95,5 +99,7 @@ def test_chunked_by_sentence_not_by_characters():
     chunks = chunker.chunk_document(_document())
     for chunk in chunks:
         pieces = chunk.text.rsplit(".", 1)
-        assert chunk.text.strip().endswith(".") or len(pieces) == len(chunk.text.rsplit(".", 1))
+        assert chunk.text.strip().endswith(".") or len(pieces) == len(
+            chunk.text.rsplit(".", 1)
+        )
     assert all(_token_count(chunk.text) <= 40 for chunk in chunks)

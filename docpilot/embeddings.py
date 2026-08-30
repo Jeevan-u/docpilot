@@ -27,7 +27,9 @@ class Embedder(ABC):
 class OpenAIBackendEmbedder(Embedder):
     """Embeddings served by OpenAI's embeddings API."""
 
-    def __init__(self, model: str = "text-embedding-3-small", api_key: str | None = None):
+    def __init__(
+        self, model: str = "text-embedding-3-small", api_key: str | None = None
+    ):
         self.model = model
         self._client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
 

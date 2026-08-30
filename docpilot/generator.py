@@ -21,7 +21,7 @@ SYSTEM_PROMPT = (
     "only the numbered source excerpts below.\n"
     "Rules:\n"
     "- Base every claim on the excerpts; never use outside knowledge.\n"
-    "- If the excerpts do not contain the answer, say \"I don't know\" "
+    '- If the excerpts do not contain the answer, say "I don\'t know" '
     "and stop.\n"
     "- Cite the excerpt number after each claim, e.g. [1] or [2].\n"
     "- Answer in a few concise sentences."
@@ -56,15 +56,14 @@ class Generator(ABC):
 class ChatGenerator(Generator):
     """Answers via a chat-completion model."""
 
-    def __init__(self, model: str, api_key: str | None = None, client: OpenAI | None = None):
+    def __init__(
+        self, model: str, api_key: str | None = None, client: OpenAI | None = None
+    ):
         self.model = model
         self._client = client or OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
 
     def generate(self, question: str, hits: list[SearchHit]) -> Answer:
-        user_message = (
-            f"{_render_context(hits)}\n\n"
-            f"Question: {question}"
-        )
+        user_message = f"{_render_context(hits)}\n\nQuestion: {question}"
         response = self._client.chat.completions.create(
             model=self.model,
             temperature=0,

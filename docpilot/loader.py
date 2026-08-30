@@ -43,7 +43,12 @@ class DocumentLoader:
     def _load_file(self, path: Path) -> list[Document]:
         if path.suffix.lower() == ".pdf":
             return self._load_pdf(path)
-        return [Document(text=path.read_text(encoding="utf-8", errors="replace"), source=str(path))]
+        return [
+            Document(
+                text=path.read_text(encoding="utf-8", errors="replace"),
+                source=str(path),
+            )
+        ]
 
     def _load_pdf(self, path: Path) -> list[Document]:
         documents: list[Document] = []
@@ -54,5 +59,7 @@ class DocumentLoader:
         for page_number, page in enumerate(reader.pages):
             text = (page.extract_text() or "").strip()
             if text:
-                documents.append(Document(text=text, source=str(path), page=page_number))
+                documents.append(
+                    Document(text=text, source=str(path), page=page_number)
+                )
         return documents

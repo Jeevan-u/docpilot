@@ -1,6 +1,7 @@
 """Tests for the vector store and retriever using a deterministic embedder."""
 
 import hashlib
+
 import numpy as np
 
 from docpilot.embeddings import Embedder
@@ -37,10 +38,26 @@ class NGramHashEmbedder(Embedder):
 def _build_store():
     embedder = NGramHashEmbedder()
     store = VectorStore()
-    store.add(embedder.embed("Dense vectors capture meaning rather than exact wording."), "Dense vectors capture meaning rather than exact wording.", {"source": "a.txt"})
-    store.add(embedder.embed("The bakery is famous for its sourdough loaves."), "The bakery is famous for its sourdough loaves.", {"source": "b.txt"})
-    store.add(embedder.embed("Semantic search finds related passages for a question."), "Semantic search finds related passages for a question.", {"source": "c.txt"})
-    store.add(embedder.embed("Vector dimensions must be consistent across the store."), "Vector dimensions must be consistent across the store.", {"source": "d.txt"})
+    store.add(
+        embedder.embed("Dense vectors capture meaning rather than exact wording."),
+        "Dense vectors capture meaning rather than exact wording.",
+        {"source": "a.txt"},
+    )
+    store.add(
+        embedder.embed("The bakery is famous for its sourdough loaves."),
+        "The bakery is famous for its sourdough loaves.",
+        {"source": "b.txt"},
+    )
+    store.add(
+        embedder.embed("Semantic search finds related passages for a question."),
+        "Semantic search finds related passages for a question.",
+        {"source": "c.txt"},
+    )
+    store.add(
+        embedder.embed("Vector dimensions must be consistent across the store."),
+        "Vector dimensions must be consistent across the store.",
+        {"source": "d.txt"},
+    )
     return embedder, store
 
 

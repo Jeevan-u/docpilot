@@ -106,7 +106,7 @@ class VectorStore:
         )
         return directory
 
-    def load(self, directory: str | Path) -> "VectorStore":
+    def load(self, directory: str | Path) -> VectorStore:
         directory = Path(directory)
         vectors = np.load(directory / "vectors.npy")
         sidecar = json.loads((directory / "index.json").read_text(encoding="utf-8"))

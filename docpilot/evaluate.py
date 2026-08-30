@@ -16,9 +16,9 @@ Metrics:
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
 
 from .retriever import Retriever
 
@@ -45,7 +45,9 @@ class EvalResult:
 def load_questions(path: str | Path) -> list[dict]:
     """Read question rows: ``[{"question": "...", "key_phrase": "..."}]``."""
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
-    return [{"question": row["question"], "key_phrase": row["key_phrase"]} for row in raw]
+    return [
+        {"question": row["question"], "key_phrase": row["key_phrase"]} for row in raw
+    ]
 
 
 def evaluate(
@@ -81,7 +83,11 @@ def evaluate(
     coverage = None
     if answer_fn is not None:
         answered = [d for d in details if d["answer_covered"] is not None]
-        coverage = sum(1 for d in answered if d["answer_covered"]) / len(answered) if answered else 0.0
+        coverage = (
+            sum(1 for d in answered if d["answer_covered"]) / len(answered)
+            if answered
+            else 0.0
+        )
 
     return EvalResult(
         retrieval_hit_rate=hit_rate, answer_coverage=coverage, details=details

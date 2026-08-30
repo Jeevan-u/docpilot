@@ -67,6 +67,6 @@ class RAGPipeline:
     def persist(self, directory: str | Path) -> Path:
         return self.store.save(directory)
 
-    def load(self, directory: str | Path) -> "RAGPipeline":
+    def load(self, directory: str | Path) -> RAGPipeline:
         self.store.load(directory)
         return self

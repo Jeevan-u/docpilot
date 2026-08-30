@@ -133,5 +133,7 @@ class TokenChunker:
             paragraph = paragraph.strip()
             if not paragraph:
                 continue
-            atoms.extend(sentence.strip() for sentence in _SENTENCE_BOUNDARY.split(paragraph))
+            atoms.extend(
+                sentence.strip() for sentence in _SENTENCE_BOUNDARY.split(paragraph)
+            )
         return atoms
