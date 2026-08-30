@@ -1,0 +1,6 @@
+[
+  {"question": "Why does a RAG system retrieve relevant passages before answering?", "key_phrase": "evidence"},
+  {"question": "What makes dense vectors better than keyword matching?", "key_phrase": "meaning"},
+  {"question": "What design detail keeps ideas from being cut in half by chunking?", "key_phrase": "overlap"},
+  {"question": "How can you tell whether the system works?", "key_phrase": "known answers"}
+]

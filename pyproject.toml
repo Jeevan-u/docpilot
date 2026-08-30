@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "docpilot"
+version = "0.1.0"
+description = "Query your own documents in plain language with retrieval-augmented generation"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "JEEVAN KL" }]
+dependencies = [
+    "numpy>=1.26.0",
+    "openai>=1.30.0",
+    "pypdf>=4.0.0",
+    "python-dotenv>=1.0.0",
+    "tiktoken>=0.7.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0"]
+
+[project.scripts]
+docpilot = "main:main"
+
+[tool.setuptools.packages.find]
+include = ["docpilot*"]
+
+[tool.setuptools]
+py-modules = ["main"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

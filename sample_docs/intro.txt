@@ -1,0 +1,13 @@
+Getting Started with Retrieval-Augmented Generation
+
+Retrieval-augmented generation, often shortened to RAG, combines two long-standing ideas: searching a collection of documents, and having a language model write fluent answers. The core trick is to never ask the model to reason about an entire corpus at once. Instead, a retrieval step first narrows the documents down to a small selection of passages that look relevant to the question, and only those passages are handed to the model as evidence.
+
+Why bother retrieving at all? Language models are trained on a fixed snapshot of public text and have no inherent memory of your private notes, recent updates, or domain-specific facts. Embedding every document in a dense vector space means any new information you add can be searched in the same way your words are transformed into numbers. When a question arrives, it is embedded too, and the passages whose vectors point in the same direction are treated as the likely evidence.
+
+Dense vectors capture meaning rather than exact wording. Two sentences can share almost no keywords yet still be close in vector space because they describe the same idea. That is the advantage of semantic search over a simple keyword match: a question phrased in an unusual way still lands near the passage that answers it.
+
+A small RAG pipeline has four moving parts. The splitting stage cuts long documents into pieces that fit comfortably within the model's context window, while keeping a little overlap so no idea is cut in half at a boundary. The encoding stage turns every piece into a vector using an embedding model. The search stage, sometimes called the retriever, ranks all stored pieces by how similar they are to the embedded question and keeps only the top few. Finally, the generation stage feeds the question together with those few pieces to a language model, which is instructed to base its answer strictly on the supplied evidence and to cite where each claim came from.
+
+You can measure whether such a system works by keeping a small set of questions with known answers. For each question you can check that the relevant piece of text actually made it into the top few retrieval results, and that the generated answer mentions the expected material. These two simple measurements give you a quick pulse on whether changes to the pipeline help or hurt, long before you worry about more elaborate benchmarks.
+
+The project in this repository is a worked example of exactly those steps, written to be read in half an hour. Every module focuses on one idea, and the whole thing fits in a few hundred lines with no heavyweight dependencies beyond the model API client.
