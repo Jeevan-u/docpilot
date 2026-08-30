@@ -15,6 +15,8 @@ import json
 import sys
 from pathlib import Path
 
+import openai
+
 from docpilot.config import Config
 from docpilot.evaluate import evaluate, load_questions
 from docpilot.loader import DocumentLoader
@@ -131,12 +133,16 @@ def main(argv: list[str] | None = None) -> int:
         print(str(exc), file=sys.stderr)
         return 1
 
-    if args.command == "index":
-        return _command_index(args, config)
-    if args.command == "ask":
-        return _command_ask(args, config)
-    if args.command == "eval":
-        return _command_eval(args, config)
+    try:
+        if args.command == "index":
+            return _command_index(args, config)
+        if args.command == "ask":
+            return _command_ask(args, config)
+        if args.command == "eval":
+            return _command_eval(args, config)
+    except openai.OpenAIError as exc:
+        print(f"OpenAI API error: {exc}", file=sys.stderr)
+        return 1
     parser.print_help()
     return 0
 
