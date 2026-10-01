@@ -3,3 +3,4 @@ tiktoken>=0.7.0
 pypdf>=4.0.0
 python-dotenv>=1.0.0
 numpy>=1.26.0
+streamlit>=1.40.0
