@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420">
+<rect width="900" height="420" rx="24" fill="#111827"/>
+<text x="45" y="65" fill="white" font-size="32" font-family="Arial" font-weight="700">DocPilot demo flow</text>
+<g font-family="Arial" font-size="20" fill="white">
+<rect x="45" y="105" width="230" height="90" rx="14" fill="#1f2937"/><text x="70" y="145">Documents</text><text x="70" y="175" fill="#9ca3af">PDF / Markdown / TXT</text>
+<text x="300" y="160" font-size="32">→</text>
+<rect x="345" y="105" width="230" height="90" rx="14" fill="#1f2937"/><text x="370" y="145">Semantic retrieval</text><text x="370" y="175" fill="#9ca3af">top-k passages</text>
+<text x="600" y="160" font-size="32">→</text>
+<rect x="645" y="105" width="210" height="90" rx="14" fill="#1f2937"/><text x="670" y="145">Grounded answer</text><text x="670" y="175" fill="#9ca3af">with [1] citations</text>
+<rect x="45" y="245" width="810" height="120" rx="14" fill="#0b1220" stroke="#374151"/>
+<text x="70" y="280" fill="#9ca3af">Example</text><text x="70" y="315">Question: What does the document say about retrieval?</text><text x="70" y="345" fill="#93c5fd">Answer: Retrieved passages support the answer [1].</text>
+</g></svg>
