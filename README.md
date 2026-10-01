@@ -2,146 +2,117 @@
 
 [![CI](https://github.com/Jeevan-u/docpilot/actions/workflows/ci.yml/badge.svg)](https://github.com/Jeevan-u/docpilot/actions/workflows/ci.yml)
 
-Ask questions in plain English and get answers drawn from **your own documents** — with the exact source passages cited as evidence.
+**DocPilot** is a small retrieval-augmented generation (RAG) application for asking questions about your own PDFs, Markdown files, and text documents. It retrieves relevant passages first, then generates an answer grounded only in those passages and cites the sources.
 
-DocPilot is a small, readable implementation of **retrieval-augmented generation (RAG)**. It loads your PDFs, notes and Markdown files, builds a searchable semantic index, then answers questions by retrieving the most relevant passages and grounding a language model on exactly those passages. The whole codebase is a few hundred lines, deliberately dependency-light, and easy to follow module by module.
+## Demo
 
----
+![DocPilot demo](docs/docpilot-demo.svg)
 
-## Why this project exists
+## Problem statement
 
-RAG is one of the most requested skills in applied LLM work, and most tutorials hand you a framework that hides every interesting detail behind a magic import. This project is the opposite: every stage is a small, named module you can read in a minute, and the math behind semantic search is written out instead of imported.
+Large documents can make manual search slow, while a general-purpose LLM can produce an answer without being grounded in the source material. DocPilot addresses this by combining semantic retrieval with source-grounded generation.
 
-What you can point at and say "I built this":
+## What I built
 
-- **Token-aware chunking** — splits documents on paragraph and sentence boundaries, keeps chunks inside an LLM context budget, and preserves an overlap so no idea gets cut in half.
-- **Semantic search from scratch** — embeddings are L2-normalised and scored with a single NumPy matrix multiplication (cosine similarity). No vector database required, and the `VectorStore` interface is small enough to swap for a real one later.
-- **Grounded generation** — the model only ever sees the top-k retrieved excerpts, is forbidden from using outside knowledge, and is asked to cite a numbered source for every claim.
-- **Measurable quality** — a small offline benchmark reports retrieval hit-rate and answer coverage, so changes can be proven to help or hurt.
+- Token-aware chunking with overlap
+- OpenAI embeddings
+- A lightweight NumPy cosine-similarity vector store
+- Top-k retrieval
+- Source-grounded answer generation with citations
+- Offline retrieval evaluation
+- A Streamlit web interface for uploading documents and asking questions
 
-## How it works
+## Architecture
 
 ```
- your documents
-      │
-      ▼
- ┌────────────┐   ┌──────────────┐   ┌──────────────┐
- │  loader.py │──▶│  chunker.py  │──▶│ embeddings.py│
- │ (PDF, md,  │   │ (token-aware │   │  (OpenAI     │
- │  txt)      │   │  + overlap)  │   │   API)       │
- └────────────┘   └──────────────┘   └──────────────┘
-                                            │
-                                            ▼
-                                    ┌──────────────┐    persisted to disk?
-                                    │   store.py   │◀──▶ data/index/*
-                                    │ (cosine sim) │
-                                    └──────────────┘
-                                            ▲
-              your question ───────────────┘
-                    │
-                    ▼
-             ┌────────────┐   top-k hits   ┌──────────────┐
-             │ retriever  │───────────────▶│  generator   │──▶ answer + sources
-             │ .py        │                │  .py (LLM)   │
-             └────────────┘                └──────────────┘
+Documents
+   ↓
+Loader → Token-aware chunker → Embeddings
+                                  ↓
+                           NumPy vector store
+                                  ↓
+Question → Retriever → Top-k passages → LLM
+                                      ↓
+                              Answer + sources
 ```
 
-The pipeline (`pipeline.py`) wires these together; the CLI (`main.py`) exposes everything as three commands.
+## Deployment
 
-## Quickstart
+The repository includes `render.yaml` for a Render web service.
 
-Requires Python 3.10+ and an OpenAI API key.
+**Public deployment:** pending final hosting connection and `OPENAI_API_KEY`.
+
+After deployment, put the public service URL here:
+
+```
+https://<your-render-service>.onrender.com
+```
+
+## Local setup
+
+Requires Python 3.10+.
 
 ```bash
-# 1. install
+git clone https://github.com/Jeevan-u/docpilot.git
+cd docpilot
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env
+```
 
-# 2. set your key
-cp .env.example .env          # then add your OPENAI_API_KEY
+Add your `OPENAI_API_KEY` to `.env`.
 
-# 3. index some documents (a sample file is included)
+### CLI
+
+```bash
 python main.py index sample_docs
-
-# 4. ask a question
 python main.py ask "What is retrieval-augmented generation?"
 ```
 
-### Example output
-
-```
-$ python main.py index sample_docs
-Loaded 1 document(s) from sample_docs
-Indexed 11 chunks into data/index
-
-$ python main.py ask "Why should a question be matched against the top few passages?"
-RAG narrows the corpus down to a small set of relevant passages before
-generation so the model never reasons over the whole collection at once [1].
-Because the model is only shown those excerpts, every claim is tied to a
-numbered source [1].
-
-Sources:
-  - sample_docs/intro.txt
-```
-
-### Commands
-
-| Command | What it does |
-| --- | --- |
-| `python main.py index <file-or-dir>` | Load, chunk, embed and store your documents |
-| `python main.py ask "<question>"` | Retrieve best matches and answer with citations |
-| `python main.py eval --questions qs.json` | Run the offline benchmark (hit rate + coverage) |
-
-Evaluation questions live in a small JSON file:
-
-```json
-[
-  {"question": "What is the advantage of semantic search?", "key_phrase": "meaning"}
-]
-```
+### Streamlit app
 
 ```bash
-python main.py eval --questions eval_questions.json --generate-answers
+streamlit run app.py
 ```
 
-## Project layout
+Upload PDF, Markdown, or text files, build the index, and ask questions from the uploaded content.
+
+## Evaluation
+
+```bash
+python main.py eval --questions eval_questions.json
+```
+
+The benchmark reports retrieval hit-rate and can optionally measure answer coverage with `--generate-answers`.
+
+## Project structure
 
 ```
 docpilot/
-├── main.py                  CLI: index / ask / eval
+├── app.py
+├── main.py
+├── render.yaml
 ├── docpilot/
-│   ├── config.py            one place for every setting
-│   ├── loader.py            PDF + text + Markdown loading
-│   ├── chunker.py           token-aware splitting with overlap
-│   ├── embeddings.py        text → vector providers
-│   ├── store.py             cosine-similarity vector store + persistence
-│   ├── retriever.py         rank chunks against a question
-│   ├── generator.py         answer generation grounded on sources
-│   ├── pipeline.py          wires the stages together
-│   └── evaluate.py          offline benchmark metrics
-├── sample_docs/             sample document to try it on
-└── tests/                   pytest suite (no network required)
+├── sample_docs/
+└── tests/
 ```
 
-## Running the tests
+## Next improvements
+
+- Hybrid BM25 + semantic retrieval
+- Reranking of top-k candidates
+- Local embeddings with sentence-transformers
+- Persistent vector storage for deployed sessions
+- Streaming responses
+
+## Tests
 
 ```bash
 pip install -r requirements-dev.txt
 pytest
 ```
 
-Tests use a deterministic hash-based embedder and an in-memory stand-in for the
-language model, so the whole suite runs offline and fast.
-
-## Ideas to extend it
-
-- Swap the vector store for a real vector database via the small `VectorStore` interface.
-- Add hybrid retrieval: combine keyword (BM25) and semantic scores.
-- Add a reranking step over the top-k candidates.
-- Add a local embedding provider (e.g. sentence-transformers) behind the `Embedder` interface.
-- Turn the CLI into a small FastAPI service with a `/ask` endpoint and a chat UI.
-
 ## License
 
-[MIT](LICENSE)
+MIT
